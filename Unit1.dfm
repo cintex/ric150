@@ -48,6 +48,10 @@ object Form1: TForm1
     TabOrder = 2
     object tsAction: TTabSheet
       Caption = #1044#1077#1081#1089#1090#1074#1080#1103
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Bevel1: TBevel
         Left = 291
         Top = 107
@@ -185,6 +189,10 @@ object Form1: TForm1
     object tsFolders: TTabSheet
       Caption = #1050#1072#1090#1072#1083#1086#1075#1080
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lbCons: TLabel
         Left = 8
         Top = 16
@@ -305,6 +313,10 @@ object Form1: TForm1
     object tsOther: TTabSheet
       Caption = #1056#1072#1079#1085#1086#1077
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object btReg: TButton
         Left = 3
         Top = 5

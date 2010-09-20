@@ -18,6 +18,7 @@ History
 1.1.1 Отказ от консультаций.
 1.2.1 Добавлено контекстное меню к списку выбора баз.
       Добавлено копирование только CONS*.ANS.
+1.2.2 Начало жизни в SVN.
 }
 unit Unit1;
  {$WARN UNIT_PLATFORM OFF}
@@ -767,7 +768,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-Version:='Ric150 v1.2.1';
+Version:='Ric150 v1.2.2';
 end;
 
 procedure TForm1.FormHide(Sender: TObject);
