@@ -19,6 +19,7 @@ History
 1.2.1 Добавлено контекстное меню к списку выбора баз.
       Добавлено копирование только CONS*.ANS.
 1.2.2 Начало жизни в SVN.
+1.2.3 comment в baselist.cfg
 }
 unit Unit1;
  {$WARN UNIT_PLATFORM OFF}
@@ -464,8 +465,9 @@ try
     while not EOF(UserList) do
     begin
       readln(UserList, base);
-      if base <> '' then
+      if (base <> '') OR (base[1] <> ';') then
       begin
+        if pos('comment',base)<>0 then delete(base,pos('comment',base)-1,length(base));
         ToLog('Найдена база: ' + base,1);
         clbBases.Items.Add(base);
       end;
@@ -768,7 +770,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-Version:='Ric150 v1.2.2';
+Version:='Ric150 v1.2.3';
 end;
 
 procedure TForm1.FormHide(Sender: TObject);
