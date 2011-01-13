@@ -48,10 +48,6 @@ object Form1: TForm1
     TabOrder = 2
     object tsAction: TTabSheet
       Caption = #1044#1077#1081#1089#1090#1074#1080#1103
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel1: TBevel
         Left = 291
         Top = 107
@@ -67,12 +63,12 @@ object Form1: TForm1
         Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
         TabOrder = 0
         object btCpReceive: TButton
-          Left = 215
+          Left = 179
           Top = 23
-          Width = 150
+          Width = 186
           Height = 25
           Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1087#1086#1087#1086#1083#1085#1077#1085#1080#1077
-          Caption = #1087#1086#1087#1086#1083#1085#1077#1085#1080#1077'+cons'
+          Caption = #1087#1086#1087#1086#1083#1085#1077#1085#1080#1077
           Default = True
           ParentShowHint = False
           ShowHint = True
@@ -82,7 +78,7 @@ object Form1: TForm1
         object btCpUsrQst: TButton
           Left = 20
           Top = 23
-          Width = 135
+          Width = 153
           Height = 25
           Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' USR '#1080' QST '#1092#1072#1081#1083#1099
           Caption = #1086#1090#1095#1077#1090#1099' '#1080' '#1079#1072#1087#1088#1086#1089#1099
@@ -126,15 +122,6 @@ object Form1: TForm1
           ShowHint = True
           TabOrder = 2
         end
-        object btCpCons: TButton
-          Left = 161
-          Top = 23
-          Width = 48
-          Height = 25
-          Caption = 'cons'
-          TabOrder = 5
-          OnClick = btCpReceiveClick
-        end
       end
       object btUpdate: TButton
         Left = 197
@@ -150,7 +137,7 @@ object Form1: TForm1
       end
       object cbExit: TCheckBox
         Left = 23
-        Top = 144
+        Top = 130
         Width = 153
         Height = 17
         Caption = ' '#1087#1086#1089#1083#1077' '#1086#1073#1085#1086#1074#1083#1077#1085#1080#1103' '#1074#1099#1081#1090#1080
@@ -170,7 +157,7 @@ object Form1: TForm1
       end
       object cbRunner: TCheckBox
         Left = 23
-        Top = 121
+        Top = 107
         Width = 153
         Height = 17
         Caption = #1089' '#1082#1083#1102#1095#1077#1084' NORUNNER'
@@ -185,14 +172,18 @@ object Form1: TForm1
         TabOrder = 5
         OnClick = btStatClick
       end
+      object cbInetUpdate: TCheckBox
+        Left = 23
+        Top = 153
+        Width = 153
+        Height = 17
+        Caption = #1076#1086#1073#1080#1090#1100' '#1095#1077#1088#1077#1079' '#1080#1085#1090#1077#1088#1085#1077#1090
+        TabOrder = 6
+      end
     end
     object tsFolders: TTabSheet
       Caption = #1050#1072#1090#1072#1083#1086#1075#1080
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lbCons: TLabel
         Left = 8
         Top = 16
@@ -313,10 +304,6 @@ object Form1: TForm1
     object tsOther: TTabSheet
       Caption = #1056#1072#1079#1085#1086#1077
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object btReg: TButton
         Left = 3
         Top = 5
@@ -335,7 +322,7 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = btTestClick
       end
-      object GroupBox2: TGroupBox
+      object gbUIN: TGroupBox
         Left = 3
         Top = 34
         Width = 334
@@ -391,23 +378,6 @@ object Form1: TForm1
         Caption = #1058#1077#1089#1090#1080#1088#1086#1074#1072#1085#1080#1077' RES'
         TabOrder = 3
         OnClick = btTestResClick
-      end
-      object GroupBox3: TGroupBox
-        Left = 3
-        Top = 111
-        Width = 83
-        Height = 50
-        Caption = 'CONS*.ANS'
-        TabOrder = 4
-        object btUpdateConsOnly: TButton
-          Left = 10
-          Top = 19
-          Width = 61
-          Height = 22
-          Caption = #1054#1073#1085#1086#1074#1080#1090#1100
-          TabOrder = 0
-          OnClick = btUpdateConsOnlyClick
-        end
       end
     end
   end

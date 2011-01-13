@@ -20,6 +20,10 @@ History
       Добавлено копирование только CONS*.ANS.
 1.2.2 Начало жизни в SVN.
 1.2.3 comment в baselist.cfg
+1.3.1 дополнительная проверка при копировании файлов отчетов и запросов
+      убрано пополнение только CONS*.ANS (консультант стал умнее :))
+      добавлена возможность обновить консультант чрезе интернет
+
 }
 unit Unit1;
  {$WARN UNIT_PLATFORM OFF}
@@ -64,22 +68,19 @@ type
     btTest: TButton;
     cbRunner: TCheckBox;
     btStat: TButton;
-    GroupBox2: TGroupBox;
+    gbUIN: TGroupBox;
     lbPathUin: TLabel;
     edPathUIN: TEdit;
     btPathUin: TButton;
     cbCopyUIN: TCheckBox;
     btTestRes: TButton;
     btCopyUin: TButton;
-    GroupBox3: TGroupBox;
-    btUpdateConsOnly: TButton;
     basemenu: TPopupMenu;
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
-    btCpCons: TButton;
+    cbInetUpdate: TCheckBox;
     procedure btExitClick(Sender: TObject);
-    procedure btCpReceiveClick(Sender: TObject);
     procedure btPathConsClick(Sender: TObject);
     procedure btPathReceiveClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -98,10 +99,10 @@ type
     procedure btPathUinClick(Sender: TObject);
     procedure btCopyUinClick(Sender: TObject);
     procedure FormHide(Sender: TObject);
-    procedure btUpdateConsOnlyClick(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
     procedure N3Click(Sender: TObject);
+    procedure btCpReceiveClick(Sender: TObject);
   private
     version : string;
     { Private declarations }
@@ -114,7 +115,7 @@ type
     procedure CheckBase;
     procedure CopyQST;
     procedure CopyUIN;
-    procedure UpdateConsOnly(consExe: PAnsiChar);
+    procedure CpReceive;
   public
 
     { Public declarations }
@@ -173,36 +174,7 @@ attributes }
     result := i;
   end;
 end;
-      {
-procedure FileEx(const FileName : String; Params : String);
-var
- ShellInfo : TShellExecuteInfo;
- //ParamsString : String;
- error:cardinal;
-begin
-  //ParamsString := Format('-em %s %s.aaa', [FileName, FileName]);
-  ShellInfo.cbSize := SizeOf(ShellInfo);
-  ShellInfo.fMask := SEE_MASK_NOCLOSEPROCESS;
-  ShellInfo.Wnd := Application.Handle;
-  ShellInfo.lpVerb := 'open';
-  ShellInfo.lpFile := PChar(FileName);
-  ShellInfo.lpParameters := PChar(Params); //PChar(ParamsString);
-  ShellInfo.lpDirectory := nil;
-  ShellInfo.nShow := SW_SHOW;
 
-  if not ShellExecuteEx(@ShellInfo)
-  then RaiseLastOSError();
-
-  if ShellInfo.hProcess <> 0 then
-    try
-      WaitForSingleObjectEx(ShellInfo.hProcess, INFINITE, false);
-    finally
-      if not GetExitCodeProcess(ShellInfo.hProcess,error) then
-        showmessage('код возврата '+inttostr(Error));
-      CloseHandle(ShellInfo.hProcess);
-    end;
-end;
-       }
 // Процедура вывода сообщения в лог
 // Использование: ToLog(message,color);
 // Цвета: 0 - зеленый, 1 - синий, 2 - красный. все остальные цифры - черный
@@ -290,7 +262,10 @@ var
 begin
   { DONE : Копирование файлов отчета }
   if not (DirectoryExists(edPathUsr.Text) and DirectoryExists(edPathCons.Text)) then
-    ToLog('Папка для отчетов не найдена', 2);
+    begin
+      ToLog('Папка для отчетов не найдена', 2);
+      showmessage('Папка для отчетов не найдена');
+    end;
   if DirectoryExists(edPathUsr.Text) and DirectoryExists(edPathCons.Text) then
   begin
     ToLog('Папка для отчетов найдена', 0);
@@ -303,6 +278,12 @@ begin
         ToLog('Скопирован отчет: ' + name, 4)
       else
         ToLog('Ошибка копирования: ' + name, 2);
+// доп проверка на существование скопированного файла
+      if not FileExists(edPathCons.Text + '\receive\' + SR.Name) then
+        begin
+          ToLog('Ошибка копирования: ' + name, 2);
+          showmessage('Ошибка копирования');
+        end;
       ff := FindNext(SR);
       Application.ProcessMessages;
     end;
@@ -417,16 +398,7 @@ begin
     ToLog('Папка для UIN не найдена', 2);
 end;
 
-procedure TForm1.UpdateConsOnly(consExe: PAnsiChar);
-var
-  consParam: PAnsiChar;
-begin
-  // запуск на обновление только CONS*.ANS
-  ToLog(edPathCons.Text + '\cons.exe /adm /receive /base* /receivedir="' + edPathCons.Text + '\receive\cons"', 1);
-  ConsParam := PChar(' /adm /receive /base* /receivedir="' + edPathCons.Text + '\receive\cons"');
-  if WinExecAndWait32(ConsExe, ConsParam, SW_SHOW)=3 then
-    ToLog('Не хватает места на диске', 2)
-end;
+
 
 // процедура используемая при выборе папок
 function TForm1.SelectDirectory: String;
@@ -489,15 +461,7 @@ except
 end;
 end;
 
-procedure TForm1.btUpdateConsOnlyClick(Sender: TObject);
-var
-  consExe : PChar;
-begin
-{ DONE : Запуск консультант на обновление }
-ConsExe:=PChar(edPathCons.Text+'\cons.exe');
-ToLog('Запуск Консультанта на обновление только CONS*.ANS',0);
-UpdateConsOnly(consExe);
-end;
+
 
 // тестирование ресурсного модуля
 procedure TForm1.btPathUinClick(Sender: TObject);
@@ -558,7 +522,7 @@ if DirectoryExists(dir) then
   end;
 end;
 // процедура копирования пополнения
-procedure TForm1.btCpReceiveClick(Sender: TObject);
+procedure TForm1.CpReceive;
 var SR:TSearchRec;
     ff:integer;
     i:integer;
@@ -572,42 +536,20 @@ if DirectoryExists(edPathReceive.Text)
       ToLog('Папка пополнения найдена',1);
       clbBases.Items.add('CONS');
       //создание папки для cons*.ans
-      if not DirectoryExists(edPathCons.Text+'\receive\cons') then
-        begin
-          if CreateDir(edPathCons.Text+'\receive\cons') then
-            ToLog('Создана подпапка CONS',4)
-          else
-            ToLog('Ошибка создания подпапки CONS',2);
-        end;
       clbBases.Checked[clbBases.Items.Count-1]:=true;
       for i := 0 to clbBases.Count - 1 do
         if clbBases.Checked[i] then
           begin
-            ff:=FindFirst(edPathReceive.Text+'\'+clbBases.Items[i]+'*.*',faAnyFile-faDirectory,SR);
+            ff:=FindFirst(edPathReceive.Text+'\'+clbBases.Items[i]+'*.ans',faAnyFile-faDirectory,SR);
             While ff=0 do
               begin
                 dt:=FileDateToDateTime(SR.Time);
                 if (dt>=dtpFrom.DateTime) and (dt<=dtpTill.DateTime) then
                   begin
-                    if pos('CONS',SR.Name)<>0 then     // cons*.ans копируются также в другую папку
-                      begin
-                        if copyfile(PChar(edPathReceive.Text+'\'+SR.Name),PChar(edPathCons.Text+'\receive\cons\'+SR.Name),false) then
-                           ToLog('Скопирован: cons\'+SR.Name,4)
-                        else
-                           ToLog('Ошибка копирования: '+SR.Name,2);
-                        if copyfile(PChar(edPathReceive.Text+'\'+SR.Name),PChar(edPathCons.Text+'\receive\'+SR.Name),false) then
-                           ToLog('Скопирован: '+SR.Name,4)
-                        else
-                           ToLog('Ошибка копирования: '+SR.Name,2)
-                      end
+                    if copyfile(PChar(edPathReceive.Text+'\'+SR.Name),PChar(edPathCons.Text+'\receive\'+SR.Name),false) then
+                      ToLog('Скопирован: '+SR.Name,4)
                     else
-                      if not (Sender=btCpCons) then
-                        begin
-                          if copyfile(PChar(edPathReceive.Text+'\'+SR.Name),PChar(edPathCons.Text+'\receive\'+SR.Name),false) then
-                            ToLog('Скопирован: '+SR.Name,4)
-                          else
-                            ToLog('Ошибка копирования: '+SR.Name,2);
-                        end;
+                      ToLog('Ошибка копирования: '+SR.Name,2);
                   end;
                 ff:=FindNext(SR);
                 Application.ProcessMessages;
@@ -654,6 +596,11 @@ if DirectoryExists(dir) then
 end;
 
 // копирование отчетов и запросов
+procedure TForm1.btCpReceiveClick(Sender: TObject);
+begin
+cpReceive;
+end;
+
 procedure TForm1.btCpUsrQstClick(Sender: TObject);
 begin
   CopyUSR;
@@ -673,36 +620,37 @@ begin
 ConsExe:=PChar(edPathCons.Text+'\cons.exe');
 ToLog('Запуск Консультанта на обновление',0);
 
-//if cbUpdateCons.Checked then
+// пополнение локальное
+ToLog('Основное пополнение',0);
+if cbRunner.Checked then
   begin
-    // запуск на обновление только CONS*.ANS
-    ToLog('Проверка свободного места (пополнение только cons*.ans)',0);
-    ToLog(edPathCons.Text + '\cons.exe /adm /receive /base* /receivedir="' + edPathCons.Text + '\receive\cons"', 1);
-    ConsParam := PChar(' /adm /receive /base* /receivedir="' + edPathCons.Text + '\receive\cons"');
-    if WinExecAndWait32(ConsExe, ConsParam, SW_HIDE)=3 then
-        ToLog('Не хватает места на диске', 2)
-    else
-      begin
-        ToLog('Основное пополнение',0);
-        if cbRunner.Checked then
-          begin
-            ConsParam:=' /adm /receive /base* /yes  /norunner';
-            LogStr:=string(ConsExe)+string(ConsParam);
-            ToLog(LogStr,1);
-            WinExecAndWait32(ConsExe, ConsParam, SW_SHOW);
-          end
-        else
-          begin
-            ConsParam:=' /adm /receive /base* /yes';
-            LogStr:=string(ConsExe)+string(ConsParam);
-            ToLog(LogStr,1);
-            WinExecAndWait32(ConsExe, ConsParam, SW_SHOW);
-          end;
-        if cbExit.Checked then Form1.Close;
-        // Вывод статистики
-        Statistic;
-      end;
+    // запуск в тихом режиме
+    ConsParam:=' /adm /receive /base* /yes  /norunner';
+    LogStr:=string(ConsExe)+string(ConsParam);
+    ToLog(LogStr,1);
+    WinExecAndWait32(ConsExe, ConsParam, SW_SHOW);
+  end
+  else
+    begin
+    // запуск в обычном режиме
+      ConsParam:=' /adm /receive /base* /yes';
+      LogStr:=string(ConsExe)+string(ConsParam);
+      ToLog(LogStr,1);
+      WinExecAndWait32(ConsExe, ConsParam, SW_SHOW);
+    end;
+// пополнение через интернет
+if cbInetUpdate.Checked then
+  begin
+    ConsParam:=' /adm /base* /yes /receive_inet';
+    LogStr:=string(ConsExe)+string(ConsParam);
+    ToLog(LogStr,1);
+    WinExecAndWait32(ConsExe, ConsParam, SW_SHOW);
   end;
+// Вывод статистики
+Statistic;
+// выход
+if cbExit.Checked then Form1.Close;
+
 end;
 // запуск регистрации
 procedure TForm1.btRegClick(Sender: TObject);
@@ -770,7 +718,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-Version:='Ric150 v1.2.3';
+Version:='Ric150 v1.3.1';
 end;
 
 procedure TForm1.FormHide(Sender: TObject);
